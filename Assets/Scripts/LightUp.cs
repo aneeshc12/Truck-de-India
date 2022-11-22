@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class LightUp : MonoBehaviour
 {  
-    Renderer renderer;
+    Renderer rendererComp;
     Material baseMat;
     public Material litUpMat; 
 
     // Start is called before the first frame update
     void Start()
     {
-        renderer = GetComponent<Renderer>();
-        baseMat = renderer.material;        
+        rendererComp = GetComponent<Renderer>();
+        baseMat = rendererComp.material;        
     }
 
 
@@ -21,12 +21,12 @@ public class LightUp : MonoBehaviour
 
     void OnMouseOver()
     {
-        renderer.material = litUpMat;
+        rendererComp.material = litUpMat;
     }
 
     void OnMouseExit()
     {
-        renderer.material = baseMat;
+        rendererComp.material = baseMat;
     }
 }
 
