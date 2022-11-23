@@ -25,6 +25,8 @@ public class MoveToNode : MonoBehaviour
     int cntNodeID = 0;
     int destinationNodeID = 1;
 
+    public const int limit = 100;
+    public int carry = 50;
 
     // Start is called before the first frame update
     void Start()
@@ -48,11 +50,9 @@ public class MoveToNode : MonoBehaviour
     {
         if(Input.GetMouseButtonDown(0)) 
         {
-            GameObject nextNode =  GetNode();
-
-            if (nextNode.tag == "Node")
-            {
-                gameObject.GetComponent<BallAttributes>().TransferResources(nextNode);
+            GameObject nextNode = GetNode();
+            if (nextNode.tag == "Node"){
+                TransferResources(cntNodeID, destinationNodeID);
             }
         }
 
@@ -98,12 +98,12 @@ public class MoveToNode : MonoBehaviour
                     destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
                     List<int> nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
-                    Debug.Log("Chosen destination node: " + destinationNodeID);
+                    // Debug.Log("Chosen destination node: " + destinationNodeID);
 
                     // check if that node is connected
                     if(nodeConnections.Contains(cntNodeID)){
                         // initiate movement
-                        Debug.Log("Moving to " + destinationNodeID);
+                        // Debug.Log("Moving to " + destinationNodeID);
                         isMoving = 1;
                         initPos = transform.position;
                         finalPos = hitData.transform.position;
@@ -111,12 +111,36 @@ public class MoveToNode : MonoBehaviour
                         timeElapsed = 0;
                     }
                     else{
-                        Debug.Log("That movement is not allowed");
+                        // Debug.Log("That movement is not allowed");
                     }
                 }
             }
 
         }
         return hitObject;
+    }
+
+    public void TransferResources(int transferFromID, int transferToID)
+    {
+        List<GameObject> Children = new List<GameObject> {};
+        foreach (Transform child in GameObject.Find("Nodes").transform)
+        {
+            if (child.tag == "Node")
+            {
+                Children.Add(child.gameObject);
+            }
+        }
+
+        foreach (GameObject node in Children){
+            if(node.GetComponent<NodeBehavior>().ID == transferFromID){
+                Debug.Log("FRom: " + transferFromID);
+                Debug.Log(node.GetComponent<NodeBehavior>().resource);
+                node.GetComponent<NodeBehavior>().resource -= carry;
+            }
+            else if(node.GetComponent<NodeBehavior>().ID == transferToID){
+                Debug.Log("To: " + transferToID);
+                node.GetComponent<NodeBehavior>().resource += carry;
+            }
+        }
     }
 }

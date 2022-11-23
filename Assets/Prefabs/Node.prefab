@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6154584254539032193}
   - component: {fileID: 6154584254539032206}
   - component: {fileID: 6154584254539032207}
-  - component: {fileID: 6154584254539032195}
+  - component: {fileID: -7420005985007057485}
   m_Layer: 0
   m_Name: Node
   m_TagString: Node
@@ -98,7 +98,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6154584254539032195
+--- !u!114 &-7420005985007057485
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,8 +107,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6154584254539032205}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0f4c4c2e36bf8b4cb15ab141dbc8625, type: 3}
+  m_Script: {fileID: 11500000, guid: 64cb2aafaf5d10429990e3a0f2288606, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 0.8980392, g: 0.7921569, b: 0.14901961, a: 0}
-  litUpColor: {r: 1, g: 0.9607843, b: 0.34509805, a: 0}
+  litUpMat: {fileID: 0}
+  ID: 0
+  connections: 
