@@ -36,7 +36,7 @@ public class MoveToNode : MonoBehaviour
         initY = initPos.y;
         travelDuration = 1/speed;
 
-        Debug.Log(initPos);
+        // Debug.Log(initPos);
     }
 
     public float a = 2f;
@@ -46,7 +46,15 @@ public class MoveToNode : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0)) GetNode();
+        if(Input.GetMouseButtonDown(0)) 
+        {
+            GameObject nextNode =  GetNode();
+
+            if (nextNode.tag == "Node")
+            {
+                gameObject.GetComponent<BallAttributes>().TransferResources(nextNode);
+            }
+        }
 
         if(isMoving == 1) {
             if (timeElapsed < travelDuration){
@@ -75,7 +83,7 @@ public class MoveToNode : MonoBehaviour
     }
 
 
-    void GetNode(){
+    GameObject GetNode(){
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitData;
         Physics.Raycast(ray, out hitData);
@@ -109,5 +117,6 @@ public class MoveToNode : MonoBehaviour
             }
 
         }
+        return hitObject;
     }
 }
