@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class NodeBehavior : MonoBehaviour
 {  
-    Renderer rendererComp;
+    Renderer renderer;
     Material baseMat;
     public Material litUpMat; 
 
@@ -30,12 +30,12 @@ public class NodeBehavior : MonoBehaviour
 
     void OnMouseOver()
     {
-        rendererComp.material = litUpMat;
+        renderer.material = litUpMat;
     }
 
     void OnMouseExit()
     {
-        rendererComp.material = baseMat;
+        renderer.material = baseMat;
     }
 }
 

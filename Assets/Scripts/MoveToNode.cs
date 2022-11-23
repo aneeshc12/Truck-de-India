@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MoveToNode : MonoBehaviour
 {
@@ -20,6 +22,8 @@ public class MoveToNode : MonoBehaviour
     float initY;
 
     uint isMoving = 0;
+    int cntNodeID = 0;
+    int destinationNodeID = 1;
 
 
     // Start is called before the first frame update
@@ -67,8 +71,8 @@ public class MoveToNode : MonoBehaviour
             else {
                 isMoving = 0;
                 timeElapsed = 0;
+                cntNodeID = destinationNodeID;
             }
-            // Debug.Log(transform.position);
         }
 
     }
@@ -85,17 +89,33 @@ public class MoveToNode : MonoBehaviour
         Physics.Raycast(ray, out hitData);
 
         GameObject hitObject = hitData.transform.gameObject;
-        if(hitObject.tag == "Node"){
-            Debug.Log("Node : " + hitObject.name + " hit!");
-        
+        if(hitObject.tag == "Node"){        
             // init movement if not already moving
             if(isMoving == 0){
-                isMoving = 1;
-                initPos = transform.position;
-                finalPos = hitData.transform.position;
+                // get clicked node ID
+                if (hitData.collider.gameObject.GetComponent<NodeBehavior>() != null){
+                    GameObject chosenNode = hitData.collider.gameObject;
+                    destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
+                    List<int> nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
-                timeElapsed = 0;
+                    Debug.Log("Chosen destination node: " + destinationNodeID);
+
+                    // check if that node is connected
+                    if(nodeConnections.Contains(cntNodeID)){
+                        // initiate movement
+                        Debug.Log("Moving to " + destinationNodeID);
+                        isMoving = 1;
+                        initPos = transform.position;
+                        finalPos = hitData.transform.position;
+
+                        timeElapsed = 0;
+                    }
+                    else{
+                        Debug.Log("That movement is not allowed");
+                    }
+                }
             }
+
         }
         return hitObject;
     }
