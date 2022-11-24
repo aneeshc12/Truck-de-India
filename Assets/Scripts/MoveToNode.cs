@@ -25,8 +25,12 @@ public class MoveToNode : MonoBehaviour
     int cntNodeID = 0;
     int destinationNodeID = 1;
 
-    public const int limit = 100;
+    public const int limit = 3;
     public int carry = 50;
+
+    public int pickupOrDrop = 0;
+    Inventory inv;
+    SupplyDemand destinationSupplyDemand;
 
     // Start is called before the first frame update
     void Start()
@@ -38,7 +42,7 @@ public class MoveToNode : MonoBehaviour
         initY = initPos.y;
         travelDuration = 1/speed;
 
-        // Debug.Log(initPos);
+        inv = gameObject.GetComponent<Inventory>() as Inventory;
     }
 
     public float a = 2f;
@@ -48,11 +52,25 @@ public class MoveToNode : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0)) 
+        // sense clicks
+        int clicked = 0;
+        if(Input.GetMouseButtonDown(0)){
+            pickupOrDrop = 0;
+            clicked = 1;
+            Debug.Log("Left");
+        }
+        else if (Input.GetMouseButtonDown(1)){
+            pickupOrDrop = 1;
+            clicked = 1;
+            Debug.Log("Right");
+        }
+
+        if(clicked == 1)
         {
             GameObject nextNode = GetNode();
             if (nextNode.tag == "Node"){
-                TransferResources(cntNodeID, destinationNodeID);
+                // TransferResources(cntNodeID, destinationNodeID);
+                destinationSupplyDemand = nextNode.GetComponent<NodeBehavior>().supplyDemand;
             }
         }
 
@@ -68,10 +86,20 @@ public class MoveToNode : MonoBehaviour
                 
                 timeElapsed += Time.deltaTime;
             }
+            // movement completed, start loading/unloading
             else {
                 isMoving = 0;
                 timeElapsed = 0;
                 cntNodeID = destinationNodeID;
+
+                // pickup
+                if(pickupOrDrop == 0){
+                    inv.Deliver(0, destinationSupplyDemand.demandItemType, 1);
+                }
+                // drop
+                else {
+                    inv.Load(destinationSupplyDemand.supplyItemType, 1);
+                }
             }
         }
 
