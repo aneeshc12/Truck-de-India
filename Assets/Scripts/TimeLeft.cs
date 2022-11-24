@@ -30,19 +30,19 @@ public class TimeLeft : MonoBehaviour
     public Contract contract; //= contractManager.contracts[0];
     private void Update()
     {
-        // contract = contractManager.contracts[posn];
-        // if (contract.dest_node_id == node)
-        // {
-        //     // Debug.Log("suiiiiiii");
-        //     // Debug.Log(contract.time_left);
-        //     // Debug.Log(contract.contract_time);
-        //     // Debug.Log(transformer.localScale);
-        //     // change height of cylinder
-        //     //converting to float
-        //     float timeLeft = contract.time_left;
-        //     transformer.localScale = new Vector3(transformer.localScale.x, (height*(timeLeft/contract.contract_time)), transformer.localScale.z);
+        contract = contractManager.contracts[posn];
+        if (contract.dest_node_id == node)
+        {
+            // Debug.Log("suiiiiiii");
+            Debug.Log(contract.time_left);
+            Debug.Log(contract.contract_time);
+            Debug.Log(transformer.localScale);
+            // change height of cylinder
+            //converting to float
+            float timeLeft = contract.time_left;
+            transformer.localScale = new Vector3(transformer.localScale.x, (height*(timeLeft/contract.contract_time)), transformer.localScale.z);
 
-        // }
+        }
     }
 
 

@@ -28,7 +28,7 @@ public class NodeBehavior : MonoBehaviour
     private Renderer rend;
 
     public int ID; 
-    public NodeOut connections;
+    public List<int> connections;
 
     public int resource = 100;
     public SupplyDemand supplyDemand;
