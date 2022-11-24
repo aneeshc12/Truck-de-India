@@ -27,7 +27,7 @@ public class ContractManager : MonoBehaviour
 
         for (int i = 0; i < contracts.Count; i++)
         {
-            Debug.Log(contracts[i].contract_time);
+            // Debug.Log(contracts[i].contract_time);
             StartCoroutine(StartContract(contracts[i]));
 
 
@@ -50,18 +50,18 @@ public class ContractManager : MonoBehaviour
             // yield return new WaitForSeconds(1);
             if (contract.amount_delivered >= contract.amount_needed)
             {
-                Debug.Log("Contract Delivered at "+gameObject.name);
+                // Debug.Log("Contract Delivered at "+gameObject.name);
             }
             else
             {
-                Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
+                // Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
             }
             contract.time_left = i;
             yield return new WaitForSeconds(1);
         }
         if (contract.amount_delivered<contract.amount_needed)
         {
-            Debug.Log("Contract Failed at "+contract.dest_node_id);
+            // Debug.Log("Contract Failed at "+contract.dest_node_id);
         }
 
     }

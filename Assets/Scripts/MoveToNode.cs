@@ -65,6 +65,7 @@ public class MoveToNode : MonoBehaviour
             Debug.Log("Right");
         }
 
+        // move and get node
         if(clicked == 1)
         {
             GameObject nextNode = GetNode();
@@ -124,23 +125,35 @@ public class MoveToNode : MonoBehaviour
                 if (hitData.collider.gameObject.GetComponent<NodeBehavior>() != null){
                     GameObject chosenNode = hitData.collider.gameObject;
                     destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
-                    List<int> nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
+                    NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
                     // Debug.Log("Chosen destination node: " + destinationNodeID);
 
-                    // check if that node is connected
-                    if(nodeConnections.Contains(cntNodeID)){
-                        // initiate movement
-                        // Debug.Log("Moving to " + destinationNodeID);
-                        isMoving = 1;
-                        initPos = transform.position;
-                        finalPos = hitData.transform.position;
+                    // check if the chosen node is connected to the current node
+                    foreach(EdgeData ed in nodeConnections.roads){
+                        if(ed.destinationID == cntNodeID){
+                            isMoving = 1;
+                            initPos = transform.position;
+                            finalPos = hitData.transform.position;
 
-                        timeElapsed = 0;
+                            timeElapsed = 0;
+
+                            break;
+                        }
                     }
-                    else{
-                        // Debug.Log("That movement is not allowed");
-                    }
+
+                    // if(nodeConnections.Contains(cntNodeID)){
+                    //     // initiate movement
+                    //     // Debug.Log("Moving to " + destinationNodeID);
+                    //     isMoving = 1;
+                    //     initPos = transform.position;
+                    //     finalPos = hitData.transform.position;
+
+                    //     timeElapsed = 0;
+                    // }
+                    // else{
+                    //     // Debug.Log("That movement is not allowed");
+                    // }
                 }
             }
 
