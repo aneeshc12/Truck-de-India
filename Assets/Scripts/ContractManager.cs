@@ -46,6 +46,7 @@ public class ContractManager : MonoBehaviour
             while(true)
             {
 
+
                 rand_node = Random.Range(1, num_nodes);
                 Debug.Log("Random Number: " + rand_node);
                 if (num_contracts[rand_node] < 3)
@@ -87,6 +88,7 @@ public class ContractManager : MonoBehaviour
             else
             {
                 Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources of "+ contract.resource_type.ToString() +" left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
+
             }
             contract.time_left = i;
 
@@ -105,6 +107,7 @@ public class ContractManager : MonoBehaviour
             Debug.Log("Contract Failed at "+contract.dest_node_id);
             num_contracts[contract.dest_node_id] -= 1;
             contracts.Remove(contract);
+
         }
 
     }
