@@ -22,8 +22,6 @@ public class NodeQueue
         int minNode = q[0].Item1;
         float minCost = q[0].Item2;
 
-        Debug.Log("StRTA DQ");
-
         for(int i = 0; i < q.Count; i++){
             var t = q[i];
             if(t.Item2 < minCost){
@@ -35,9 +33,6 @@ public class NodeQueue
         }
 
         q.RemoveAt(minIndex);
-
-        Debug.Log("AAAAH DEQU " + minNode);
-
         return minNode;
     }
 
@@ -70,9 +65,13 @@ public class MoveToNode : MonoBehaviour
 
     float initY;
 
-    uint isMoving = 0;
+    uint nodePosNeedsToUpdate = 0;
+    uint onPath = 0;
+    int pathIndex = 0;
+
     int cntNodeID = 0;
     int destinationNodeID = 1;
+    List<int> nodesToVisit;
 
     public const int limit = 3;
     public int carry = 50;
@@ -124,23 +123,53 @@ public class MoveToNode : MonoBehaviour
             }
         }
 
-        if(isMoving == 1) {
-            if (timeElapsed < travelDuration){
-                // smooth step
-                float t = timeElapsed / travelDuration;
-                t = a * t * t * (b - (b-1) * t);
+        if(onPath == 1){
+            if(pathIndex < nodesToVisit.Count - 1) {
+                if(nodePosNeedsToUpdate == 1){
+                    List<GameObject> Children = new List<GameObject> {};
+                    foreach (Transform child in GameObject.Find("Nodes").transform)
+                    {
+                        if (child.tag == "Node")
+                        {
+                            if(child.GetComponent<NodeBehavior>().ID == nodesToVisit[pathIndex]){
+                                initPos = child.transform.position;
+                            }
+                            else if(child.GetComponent<NodeBehavior>().ID == nodesToVisit[pathIndex + 1]){
+                                finalPos = child.transform.position;
+                            }
+                        }
+                    }
 
-                Vector3 intermediatePos = Vector3.Lerp(initPos, finalPos, t);
-                intermediatePos.y = initY;
-                transform.position = intermediatePos;
+                    nodePosNeedsToUpdate = 0;
+                }
+
+                if (timeElapsed < travelDuration){
+                    // smooth step
+                    float t = timeElapsed / travelDuration;
+                    t = a * t * t * (b - (b-1) * t);
+
+                    Vector3 intermediatePos = Vector3.Lerp(initPos, finalPos, t);
+                    intermediatePos.y = initY;
+                    transform.position = intermediatePos;
+                    
+                    timeElapsed += Time.deltaTime;
+                }
+                // moved to the next node
+                else {
+                    timeElapsed = 0;
+                    pathIndex++;
+                    nodePosNeedsToUpdate = 1;
+                }
                 
-                timeElapsed += Time.deltaTime;
             }
             // movement completed, start loading/unloading
             else {
-                isMoving = 0;
+                onPath = 0;
+                pathIndex = 0;
+                nodePosNeedsToUpdate = 0;
+
                 timeElapsed = 0;
-                cntNodeID = destinationNodeID;
+                cntNodeID = nodesToVisit[nodesToVisit.Count - 1];
 
                 // pickup
                 if(pickupOrDrop == 0){
@@ -169,29 +198,35 @@ public class MoveToNode : MonoBehaviour
         GameObject hitObject = hitData.transform.gameObject;
         if(hitObject.tag == "Node"){        
             // init movement if not already moving
-            if(isMoving == 0){
+            if(onPath == 0){
                 // get clicked node ID
                 if (hitData.collider.gameObject.GetComponent<NodeBehavior>() != null){
                     GameObject chosenNode = hitData.collider.gameObject;
                     destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
                     NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
-                    ShortestPath(cntNodeID, destinationNodeID);
+                    nodesToVisit = ShortestPath(cntNodeID, destinationNodeID);
+                    for(int i = 0; i < nodesToVisit.Count; i++){
+                        Debug.Log(nodesToVisit[i]);
+                    }
+
+                    onPath = 1;
+                    nodePosNeedsToUpdate = 1;
 
                     // Debug.Log("Chosen destination node: " + destinationNodeID);
 
                     // check if the chosen node is connected to the current node
-                    foreach(EdgeData ed in nodeConnections.roads){
-                        if(ed.destinationID == cntNodeID){
-                            isMoving = 1;
-                            initPos = transform.position;
-                            finalPos = hitData.transform.position;
+                    // foreach(EdgeData ed in nodeConnections.roads){
+                    //     if(ed.destinationID == cntNodeID){
+                    //         isMoving = 1;
+                    //         initPos = transform.position;
+                    //         finalPos = hitData.transform.position;
 
-                            timeElapsed = 0;
+                    //         timeElapsed = 0;
 
-                            break;
-                        }
-                    }
+                    //         break;
+                    //     }
+                    // }
                 }
             }
 
@@ -203,9 +238,11 @@ public class MoveToNode : MonoBehaviour
 
     // utility function to find shortest path
     // essentially Dijkstras
-    public int[] ShortestPath(int homeID, int destinationID){
+    public List<int> ShortestPath(int homeID, int destinationID){
         if(homeID == destinationID){
-            return new int[] {homeID};
+            List<int> temp = new List<int>();
+            temp.Add(homeID);
+            return temp;
         }
 
         NodeManager nodeManager = GameObject.Find("Nodes").GetComponent("NodeManager") as NodeManager;
@@ -224,12 +261,10 @@ public class MoveToNode : MonoBehaviour
 
         void Relax(int homeID, int destinationID, float weight, float[] distances, int[] previous)
         {
-            Debug.Log("Asdf | " + homeID + " to " + destinationID + " | " + distances[destinationID] + " | " + distances[homeID] + " | " + weight);
             if (distances[homeID] != float.MaxValue & distances[destinationID] > distances[homeID] + weight)
             {
                 distances[destinationID] = distances[homeID] + weight;
                 previous[destinationID] = homeID;
-                Debug.Log("Relaxed");
             }
         }
 
@@ -266,25 +301,24 @@ public class MoveToNode : MonoBehaviour
                 }
                 
                 float dist = GetDistance(closestNode, queryNode);
-                Debug.Log("dsit is :" + dist + " from " + closestNode + " to " + queryNode);
                 if (dist > 0)
                 {
                     Relax(closestNode, queryNode, dist, distances, previous);
                     //updating priority value since distance is changed
-                    Debug.Log("Here?");
                     nodeQueue.UpdatePriority(queryNode, distances[queryNode]);
                 }
             }
 
-            Debug.Log("Logs: ");
-            for (int k = 0; k < numNodes; k++){
-                Debug.Log(k + " : " + distances[k] + " " +  previous[k]);
-            }
-            Debug.Log("");
+            // Debug.Log("Logs: ");
+            // for (int k = 0; k < numNodes; k++){
+            //     Debug.Log(k + " : " + distances[k] + " " +  previous[k]);
+            // }
+            // Debug.Log("");
         }
 
         // recursively print path
-        void PrintPath(int u, int v, float[] distance, int[] parent)
+        List<int> path = new List<int>();
+        void GeneratePath(int u, int v, float[] distance, int[] parent)
         {
             if (v < 0 || u < 0)
             {
@@ -292,16 +326,20 @@ public class MoveToNode : MonoBehaviour
             }
             if (v != u)
             {
-                PrintPath(u, parent[v], distance, parent);
-                Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+                GeneratePath(u, parent[v], distance, parent);
+                // Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+                
+                path.Add(v);
             }
-            else
-                Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+            else{
+                // Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+                path.Add(v);
+            }
         }
 
-        Debug.Log("Shortest path: ");
-        PrintPath(homeID, destinationID, distances, previous);
-        return new int[] {1,2,3};
+        // Debug.Log("Shortest path: ");
+        GeneratePath(homeID, destinationID, distances, previous);
+        return path;
     }
 
     // ----------------------------------------------------------------------------
@@ -319,7 +357,7 @@ public class MoveToNode : MonoBehaviour
 
         foreach (GameObject node in Children){
             if(node.GetComponent<NodeBehavior>().ID == transferFromID){
-                Debug.Log("FRom: " + transferFromID);
+                Debug.Log("From: " + transferFromID);
                 Debug.Log(node.GetComponent<NodeBehavior>().resource);
                 node.GetComponent<NodeBehavior>().resource -= carry;
             }
