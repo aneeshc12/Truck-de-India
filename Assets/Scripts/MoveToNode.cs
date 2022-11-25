@@ -117,6 +117,7 @@ public class MoveToNode : MonoBehaviour
             }
 
         }
+        transform.rotation = Quaternion.LookRotation(hitData.point - transform.position);
         return hitObject;
     }
 
