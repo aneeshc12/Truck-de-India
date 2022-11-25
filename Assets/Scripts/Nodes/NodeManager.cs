@@ -30,7 +30,6 @@ public class EdgeData{
         float[] pos2 = np2.position;
 
         distance = Mathf.Sqrt(Mathf.Pow(pos1[0] - pos2[0], 2.0f) + Mathf.Pow(pos1[1] - pos2[1], 2.0f));
-        distance = 0.0f;
         homeID = hID;
         destinationID = dID;
     }
@@ -59,12 +58,6 @@ public class NodeManager : MonoBehaviour
     void Awake()
     {
         loadInitialConnections();
-    
-        // connections.Add(new List<int> {0,1,2,4});
-        // connections.Add(new List<int> {0,1,2,3});
-        // connections.Add(new List<int> {0,1,2,3});
-        // connections.Add(new List<int> {1,2,3,4});
-        // connections.Add(new List<int> {0,3,4});
     }
 
     // Start is called before the first frame update
@@ -104,7 +97,6 @@ public class NodeManager : MonoBehaviour
         addConnection(1, 1);
         addConnection(1, 2);
         addConnection(1, 3);
-        addConnection(1, 4);
 
         addConnection(2, 2);
         addConnection(2, 3);
