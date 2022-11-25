@@ -65,14 +65,16 @@ public class TimeLeft : MonoBehaviour
         List<int> positions = new List<int>();
         for (int i = 0; i < contractManager.contracts.Count; i++)
         {
+            // Debug.Log(contractManager.contracts[i].dest_node_id+" "+node);
             if (contractManager.contracts[i].dest_node_id == node)
             {
                 positions.Add(i);
             }
         }
 
-        Debug.Log(positions.Count);
-        Debug.Log(posn);
+        if (positions.Count > 0 && posn < positions.Count)
+        {
+        
         int contract_posn = positions[posn];    
 
         contract = contractManager.contracts[contract_posn];
@@ -86,6 +88,9 @@ public class TimeLeft : MonoBehaviour
             transformer.localScale = new Vector3(transformer.localScale.x, (height*(timeLeft/contract.contract_time)), transformer.localScale.z);
 
         }
+        }
+        
+
     }
 
 
