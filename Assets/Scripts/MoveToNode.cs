@@ -3,55 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class NodeQueue 
-{
-    public List<Tuple<int, float>> q = new List<Tuple<int, float>>();
-
-    public NodeQueue(){}
-
-    public void Enqueue(int id, float dist){
-        Tuple<int, float> pair = Tuple.Create(id, dist);
-        q.Add(pair);
-
-        return;
-    }
-
-    public int Dequeue(){
-        int minIndex = 0;
-
-        int minNode = q[0].Item1;
-        float minCost = q[0].Item2;
-
-        Debug.Log("StRTA DQ");
-
-        for(int i = 0; i < q.Count; i++){
-            var t = q[i];
-            if(t.Item2 < minCost){
-                minIndex = i;
-
-                minNode = t.Item1;
-                minCost = t.Item2;
-            }
-        }
-
-        q.RemoveAt(minIndex);
-
-        Debug.Log("AAAAH DEQU " + minNode);
-
-        return minNode;
-    }
-
-    public void UpdatePriority(int node, float dist){
-        Tuple<int, float> pair = Tuple.Create(node, dist);
-
-        for(int i = 0; i < q.Count; i++){
-            if(q[i].Item1 == node){
-                q[i] = pair;
-            }
-        }
-    }
-}
-
 public class MoveToNode : MonoBehaviour
 {
     // Ray variables
@@ -106,15 +57,14 @@ public class MoveToNode : MonoBehaviour
         if(Input.GetMouseButtonDown(0)){
             pickupOrDrop = 0;
             clicked = 1;
-            // Debug.Log("Left");
+            Debug.Log("Left");
         }
         else if (Input.GetMouseButtonDown(1)){
             pickupOrDrop = 1;
             clicked = 1;
-            // Debug.Log("Right");
+            Debug.Log("Right");
         }
 
-        // move and get node
         if(clicked == 1)
         {
             GameObject nextNode = GetNode();
@@ -174,23 +124,22 @@ public class MoveToNode : MonoBehaviour
                 if (hitData.collider.gameObject.GetComponent<NodeBehavior>() != null){
                     GameObject chosenNode = hitData.collider.gameObject;
                     destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
-                    NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
-
-                    ShortestPath(cntNodeID, destinationNodeID);
+                    List<int> nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
                     // Debug.Log("Chosen destination node: " + destinationNodeID);
 
-                    // check if the chosen node is connected to the current node
-                    foreach(EdgeData ed in nodeConnections.roads){
-                        if(ed.destinationID == cntNodeID){
-                            isMoving = 1;
-                            initPos = transform.position;
-                            finalPos = hitData.transform.position;
+                    // check if that node is connected
+                    if(nodeConnections.Contains(cntNodeID)){
+                        // initiate movement
+                        // Debug.Log("Moving to " + destinationNodeID);
+                        isMoving = 1;
+                        initPos = transform.position;
+                        finalPos = hitData.transform.position;
 
-                            timeElapsed = 0;
-
-                            break;
-                        }
+                        timeElapsed = 0;
+                    }
+                    else{
+                        // Debug.Log("That movement is not allowed");
                     }
                 }
             }
@@ -198,113 +147,6 @@ public class MoveToNode : MonoBehaviour
         }
         return hitObject;
     }
-
-    // ----------------------------------------------------------------------------
-
-    // utility function to find shortest path
-    // essentially Dijkstras
-    public int[] ShortestPath(int homeID, int destinationID){
-        if(homeID == destinationID){
-            return new int[] {homeID};
-        }
-
-        NodeManager nodeManager = GameObject.Find("Nodes").GetComponent("NodeManager") as NodeManager;
-
-        // util functions
-        float GetDistance(int homeID, int destinationID){
-            foreach(EdgeData ed in nodeManager.connections[homeID].roads){
-                if(ed.homeID == homeID & ed.destinationID == destinationID){
-                    return ed.distance;
-                }
-            }
-
-            // not found
-            return float.MaxValue;
-        }
-
-        void Relax(int homeID, int destinationID, float weight, float[] distances, int[] previous)
-        {
-            Debug.Log("Asdf | " + homeID + " to " + destinationID + " | " + distances[destinationID] + " | " + distances[homeID] + " | " + weight);
-            if (distances[homeID] != float.MaxValue & distances[destinationID] > distances[homeID] + weight)
-            {
-                distances[destinationID] = distances[homeID] + weight;
-                previous[destinationID] = homeID;
-                Debug.Log("Relaxed");
-            }
-        }
-
-        // main code
-        int numNodes = nodeManager.nodeList.Length;
-        float[] distances = new float[numNodes];
-        int[] previous = new int[numNodes];
-
-        NodeQueue nodeQueue = new NodeQueue();
-
-        for(int i = 0; i < numNodes; i++){
-            previous[i] = -1;
-
-            if(i == homeID){
-                distances[i] = 0.0f;
-            }
-            else{
-                distances[i] = float.MaxValue;
-            }
-            nodeQueue.Enqueue(i, distances[i]);
-        }
-
-        while(nodeQueue.q.Count > 0){
-
-            // extract min
-            int closestNode = nodeQueue.Dequeue();
-
-            int connectedNum = nodeManager.connections[closestNode].roads.Count;
-            for (int v = 0; v < connectedNum; v++)
-            {
-                int queryNode = nodeManager.connections[closestNode].roads[v].destinationID;
-                if(queryNode == closestNode){
-                    continue;
-                }
-                
-                float dist = GetDistance(closestNode, queryNode);
-                Debug.Log("dsit is :" + dist + " from " + closestNode + " to " + queryNode);
-                if (dist > 0)
-                {
-                    Relax(closestNode, queryNode, dist, distances, previous);
-                    //updating priority value since distance is changed
-                    Debug.Log("Here?");
-                    nodeQueue.UpdatePriority(queryNode, distances[queryNode]);
-                }
-            }
-
-            Debug.Log("Logs: ");
-            for (int k = 0; k < numNodes; k++){
-                Debug.Log(k + " : " + distances[k] + " " +  previous[k]);
-            }
-            Debug.Log("");
-        }
-
-        // recursively print path
-        void PrintPath(int u, int v, float[] distance, int[] parent)
-        {
-            if (v < 0 || u < 0)
-            {
-                return;
-            }
-            if (v != u)
-            {
-                PrintPath(u, parent[v], distance, parent);
-                Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
-            }
-            else
-                Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
-        }
-
-        Debug.Log("Shortest path: ");
-        PrintPath(homeID, destinationID, distances, previous);
-        return new int[] {1,2,3};
-    }
-
-    // ----------------------------------------------------------------------------
 
     public void TransferResources(int transferFromID, int transferToID)
     {
