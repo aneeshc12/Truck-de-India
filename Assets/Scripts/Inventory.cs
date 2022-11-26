@@ -30,7 +30,7 @@ public class Inventory : MonoBehaviour
     }
 
     // deliver from inventory to node
-    public int Deliver(int destinationID, ItemTypes itemType, int quantity){
+    public int Deliver(ItemTypes itemType, int quantity){
         // verify if params are valid
         if(!(quantity <= inventorySize & quantity > 0)){
             return 1;

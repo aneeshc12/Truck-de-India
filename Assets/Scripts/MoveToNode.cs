@@ -82,6 +82,8 @@ public class MoveToNode : MonoBehaviour
     ItemTypes supplyType = new ItemTypes();
     ItemTypes demandType = new ItemTypes();
 
+    ContractManager contractManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -93,6 +95,8 @@ public class MoveToNode : MonoBehaviour
         travelDuration = 1/speed;
 
         inv = gameObject.GetComponent<Inventory>() as Inventory;
+
+        contractManager = GameObject.Find("Contract Manager").GetComponent<ContractManager>();
     }
 
     public float a = 2f;
@@ -126,8 +130,7 @@ public class MoveToNode : MonoBehaviour
             }
         }
 
-        Debug.Log("supply: " + (int) supplyType);
-        Debug.Log("demand: " + (int) demandType);
+        // Debug.Log("supply: " + (int) supplyType);
 
         if(onPath == 1){
             if(pathIndex < nodesToVisit.Count - 1) {
@@ -177,19 +180,40 @@ public class MoveToNode : MonoBehaviour
                 timeElapsed = 0;
                 cntNodeID = nodesToVisit[nodesToVisit.Count - 1];
 
-                Debug.Log(cntNodeID);
+                // Debug.Log(cntNodeID);
 
-                // pickup
+                // drop off
                 if(pickupOrDrop == 0){
-                    inv.Deliver(cntNodeID, demandType, 1);
+                    foreach(Contract c in contractManager.contracts){
+                        // check if a contract exists here
+                        if(c.dest_node_id == cntNodeID & c.amount_delivered < c.amount_needed){
+                            ItemTypes request = c.resource_type;
+                            int numCarrying = 0;
+                            foreach(int item in inv.cntInventory){
+                                if(item == (int) request)
+                                    numCarrying++;
+                            }
+
+                            // we can deliver to this node
+                            if(numCarrying > 0){
+                                int toDeliver = Mathf.Min(c.amount_needed - c.amount_delivered, numCarrying);
+
+                                Debug.Log("Suitable contract found!");
+                                c.amount_delivered += toDeliver;    // update contract
+                                Debug.Log("Progress: " + c.amount_delivered + "/" + c.amount_needed);
+                            
+                                inv.Deliver(request, toDeliver); // update truck inventory
+                            }
+                        }
+                    }
+
                 }
-                // drop
+                // pickup
                 else {
-                    inv.Load(supplyType, 1);
+                    inv.Load(supplyType, 1);    
                 }
             }
         }
-
     }
 
     void OnCollisionEnter(Collision collision){
@@ -214,27 +238,12 @@ public class MoveToNode : MonoBehaviour
                     NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
                     nodesToVisit = ShortestPath(cntNodeID, destinationNodeID);
-                    for(int i = 0; i < nodesToVisit.Count; i++){
-                        Debug.Log(nodesToVisit[i]);
-                    }
+                    // for(int i = 0; i < nodesToVisit.Count; i++){
+                        // Debug.Log(nodesToVisit[i]);
+                    // }
 
                     onPath = 1;
                     nodePosNeedsToUpdate = 1;
-
-                    // Debug.Log("Chosen destination node: " + destinationNodeID);
-
-                    // check if the chosen node is connected to the current node
-                    // foreach(EdgeData ed in nodeConnections.roads){
-                    //     if(ed.destinationID == cntNodeID){
-                    //         isMoving = 1;
-                    //         initPos = transform.position;
-                    //         finalPos = hitData.transform.position;
-
-                    //         timeElapsed = 0;
-
-                    //         break;
-                    //     }
-                    // }
                 }
             }
 

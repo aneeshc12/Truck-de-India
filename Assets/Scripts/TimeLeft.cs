@@ -79,13 +79,13 @@ public class TimeLeft : MonoBehaviour
         int contract_posn = positions[posn];    
 
         contract = contractManager.contracts[contract_posn];
-        if (contract.resource_type == 1){
+        if ((int) contract.resource_type == 1){
             renderer.material.color = new(255, 0, 0);
         }
-        else if (contract.resource_type == 2){
+        else if ((int) contract.resource_type == 2){
             renderer.material.color = new(0, 255, 0);
         }
-        else if (contract.resource_type == 3){
+        else if ((int) contract.resource_type == 3){
             renderer.material.color = new(0, 0, 255);
         }
 

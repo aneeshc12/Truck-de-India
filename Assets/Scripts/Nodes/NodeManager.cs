@@ -112,24 +112,11 @@ public class NodeManager : MonoBehaviour
         // make sure theres enough space
         while(connections.Count < homeID + 1 | connections.Count < destinationID + 1){
             connections.Add(new NodeOut());
-            Debug.Log("cnxn countbeeeep");
-            Debug.Log(connections.Count);
         }
-
-        Debug.Log(homeID + " " + destinationID);
-
-        Debug.Log("cnxn count");
-        Debug.Log(connections.Count);
-
-        Debug.Log("nodepostiton count");
-        Debug.Log(nodePositions.Count);
 
         // add the road to the list of roads from both nodes
         EdgeData ed1 = new EdgeData(nodePositions[homeID], nodePositions[destinationID], homeID, destinationID);
         EdgeData ed2 = new EdgeData(nodePositions[homeID], nodePositions[destinationID], destinationID, homeID);
-
-        Debug.Log(ed1);
-        Debug.Log(ed2);
 
         connections[homeID].addRoad(ed1);
         connections[destinationID].addRoad(ed2);

@@ -60,7 +60,7 @@ public class ContractManager : MonoBehaviour
             int rand_resource_type = Random.Range(1, 4);
 
 
-            newContract = new Contract(rand_node,rand_num_resources,0,rand_resource_type,50,50);
+            newContract = new Contract(rand_node,rand_num_resources,0,(ItemTypes) rand_resource_type,50,50);
 
             contracts.Add(newContract);
             StartCoroutine(StartContract(newContract));
@@ -119,12 +119,12 @@ public class Contract
     public int dest_node_id;
     public int amount_needed;
     public int amount_delivered;
-    public int resource_type;
+    public ItemTypes resource_type;
     public int contract_time;
     public int time_left;
 
 
-    public Contract(int dest_node_id, int amount_needed, int amount_delivered, int resource_type, int contract_time, int time_left)
+    public Contract(int dest_node_id, int amount_needed, int amount_delivered, ItemTypes resource_type, int contract_time, int time_left)
     {
         this.dest_node_id = dest_node_id;
         this.amount_needed = amount_needed;
@@ -132,10 +132,5 @@ public class Contract
         this.resource_type = resource_type;
         this.contract_time = contract_time;
         this.time_left = time_left;
-    }
-
-    
-
-
-    
+    }   
 }
