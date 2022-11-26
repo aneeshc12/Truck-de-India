@@ -78,7 +78,9 @@ public class MoveToNode : MonoBehaviour
 
     public int pickupOrDrop = 0;
     Inventory inv;
-    SupplyDemand destinationSupplyDemand;
+
+    ItemTypes supplyType = new ItemTypes();
+    ItemTypes demandType = new ItemTypes();
 
     // Start is called before the first frame update
     void Start()
@@ -113,15 +115,19 @@ public class MoveToNode : MonoBehaviour
             // Debug.Log("Right");
         }
 
+
         // move and get node
         if(clicked == 1)
         {
             GameObject nextNode = GetNode();
             if (nextNode.tag == "Node"){
-                // TransferResources(cntNodeID, destinationNodeID);
-                destinationSupplyDemand = nextNode.GetComponent<NodeBehavior>().supplyDemand;
+                supplyType = nextNode.GetComponent<NodeBehavior>().supplyType;
+                demandType = nextNode.GetComponent<NodeBehavior>().demandType;
             }
         }
+
+        Debug.Log("supply: " + (int) supplyType);
+        Debug.Log("demand: " + (int) demandType);
 
         if(onPath == 1){
             if(pathIndex < nodesToVisit.Count - 1) {
@@ -171,13 +177,15 @@ public class MoveToNode : MonoBehaviour
                 timeElapsed = 0;
                 cntNodeID = nodesToVisit[nodesToVisit.Count - 1];
 
+                Debug.Log(cntNodeID);
+
                 // pickup
                 if(pickupOrDrop == 0){
-                    inv.Deliver(0, destinationSupplyDemand.demandItemType, 1);
+                    inv.Deliver(cntNodeID, demandType, 1);
                 }
                 // drop
                 else {
-                    inv.Load(destinationSupplyDemand.supplyItemType, 1);
+                    inv.Load(supplyType, 1);
                 }
             }
         }
@@ -230,8 +238,10 @@ public class MoveToNode : MonoBehaviour
                 }
             }
 
+            if(cntNodeID != destinationNodeID)
+                transform.rotation = Quaternion.LookRotation(hitData.point - transform.position);
         }
-        transform.rotation = Quaternion.LookRotation(hitData.point - transform.position);
+
         return hitObject;
     }
 

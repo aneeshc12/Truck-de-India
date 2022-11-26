@@ -21,7 +21,7 @@ public class ContractManager : MonoBehaviour
     private void Start()
     {
         num_nodes = GameObject.Find("Nodes").GetComponent<NodeManager>().nodeList.Length;
-        Debug.Log(num_nodes);
+        // Debug.Log(num_nodes);
         num_contracts = new List<int>(Enumerable.Repeat(0, num_nodes));
         StartCoroutine(RandomContractGenerator());
         
@@ -47,8 +47,8 @@ public class ContractManager : MonoBehaviour
             {
 
 
-                rand_node = Random.Range(1, num_nodes);
-                Debug.Log("Random Number: " + rand_node);
+                rand_node = Random.Range(0, num_nodes);
+                // Debug.Log("Random Number: " + rand_node);
                 if (num_contracts[rand_node] < 3)
                 {
                     num_contracts[rand_node] += 1;
@@ -80,14 +80,14 @@ public class ContractManager : MonoBehaviour
             // yield return new WaitForSeconds(1);
             if (contract.amount_delivered >= contract.amount_needed)
             {
-                Debug.Log("Contract Delivered at "+gameObject.name);
+                // Debug.Log("Contract Delivered at "+gameObject.name);
                 // deleting contract from contract list
                 num_contracts[contract.dest_node_id] -= 1;
                 contracts.Remove(contract); 
             }
             else
             {
-                Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources of "+ contract.resource_type.ToString() +" left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
+                // Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources of "+ contract.resource_type.ToString() +" left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
 
             }
             contract.time_left = i;
@@ -98,13 +98,13 @@ public class ContractManager : MonoBehaviour
             {
                 str += value.ToString() + " ";
             }
-            Debug.Log(str);
+            // Debug.Log(str);
 
             yield return new WaitForSeconds(1);
         }
         if (contract.amount_delivered<contract.amount_needed)
         {
-            Debug.Log("Contract Failed at "+contract.dest_node_id);
+            // Debug.Log("Contract Failed at "+contract.dest_node_id);
             num_contracts[contract.dest_node_id] -= 1;
             contracts.Remove(contract);
 
