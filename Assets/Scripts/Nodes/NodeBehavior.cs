@@ -2,6 +2,20 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+public class SupplyDemand
+{
+    public ItemTypes supplyItemType;
+    
+    public ItemTypes demandItemType;
+    public int demandNum;
+
+    public SupplyDemand(ItemTypes s, ItemTypes d, int dNum){
+        supplyItemType = s;
+        demandItemType = d;
+        demandNum = dNum;
+    }
+}
+
 public class NodeBehavior : MonoBehaviour
 {  
     Renderer renderer;
@@ -14,11 +28,10 @@ public class NodeBehavior : MonoBehaviour
     private Renderer rend;
 
     public int ID; 
-    public NodeOut connections;
+    public List<int> connections;
 
     public int resource = 100;
-    public ItemTypes supplyType;
-    public ItemTypes demandType;
+    public SupplyDemand supplyDemand;
 
     // Start is called before the first frame update
     void Start()
@@ -32,16 +45,10 @@ public class NodeBehavior : MonoBehaviour
 
         // setup supply and demand
         if(ID == 0){
-            supplyType = ItemTypes.Wheat;
-            demandType = ItemTypes.Brick;
-        }
-        else if(ID == 1){
-            supplyType = ItemTypes.Brick;
-            demandType = ItemTypes.Steel;
+            supplyDemand = new SupplyDemand(ItemTypes.Wheat, ItemTypes.Brick, 3);
         }
         else {
-            supplyType = ItemTypes.Steel;
-            demandType = ItemTypes.Wheat;
+            supplyDemand = new SupplyDemand(ItemTypes.Brick, ItemTypes.Wheat, 3);
         }
     }
 
