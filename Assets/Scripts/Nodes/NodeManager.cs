@@ -28,6 +28,57 @@ public class NodeManager : MonoBehaviour
     {
         
     }
+
+
+    // starting connections
+    void loadInitialConnections(){
+        // get positions
+        for(int i = 0; i < transform.childCount; i++){
+            GameObject childNode = transform.GetChild(i).gameObject;
+            
+            if(childNode.tag == "Node"){
+                Vector3 pos = childNode.transform.position;
+                float x = pos[0];
+                float z = pos[2];
+
+                NodePosition np = new NodePosition(x, z);
+                nodePositions.Add(np);
+            }
+        }
+
+        // add connections
+        addConnection(0, 0);
+        addConnection(0, 1);
+        addConnection(0, 2);
+        addConnection(0, 4);
+
+        addConnection(1, 1);
+        addConnection(1, 2);
+        addConnection(1, 3);
+
+        addConnection(2, 2);
+        addConnection(2, 3);
+
+        addConnection(3, 3);
+        addConnection(3, 4);
+
+        addConnection(4, 4);
+    }
+
+    // add a connection from "homeID" to "destinationID"
+    void addConnection(int homeID, int destinationID){
+        // make sure theres enough space
+        while(connections.Count < homeID + 1 | connections.Count < destinationID + 1){
+            connections.Add(new NodeOut());
+        }
+
+        // add the road to the list of roads from both nodes
+        EdgeData ed1 = new EdgeData(nodePositions[homeID], nodePositions[destinationID], homeID, destinationID);
+        EdgeData ed2 = new EdgeData(nodePositions[homeID], nodePositions[destinationID], destinationID, homeID);
+
+        connections[homeID].addRoad(ed1);
+        connections[destinationID].addRoad(ed2);
+    }
 }
 
 

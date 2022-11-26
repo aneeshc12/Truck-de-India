@@ -32,6 +32,8 @@ public class MoveToNode : MonoBehaviour
     Inventory inv;
     SupplyDemand destinationSupplyDemand;
 
+    ContractManager contractManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,6 +45,8 @@ public class MoveToNode : MonoBehaviour
         travelDuration = 1/speed;
 
         inv = gameObject.GetComponent<Inventory>() as Inventory;
+
+        contractManager = GameObject.Find("Contract Manager").GetComponent<ContractManager>();
     }
 
     public float a = 2f;
@@ -74,35 +78,75 @@ public class MoveToNode : MonoBehaviour
             }
         }
 
-        if(isMoving == 1) {
-            if (timeElapsed < travelDuration){
-                // smooth step
-                float t = timeElapsed / travelDuration;
-                t = a * t * t * (b - (b-1) * t);
+        // Debug.Log("supply: " + (int) supplyType);
+
+        if(onPath == 1){
+            if(pathIndex < nodesToVisit.Count - 1) {
+                if(nodePosNeedsToUpdate == 1){
+                    List<GameObject> Children = new List<GameObject> {};
+                    foreach (Transform child in GameObject.Find("Nodes").transform)
+                    {
+                        if (child.tag == "Node")
+                        {
+                            if(child.GetComponent<NodeBehavior>().ID == nodesToVisit[pathIndex]){
+                                initPos = child.transform.position;
+                            }
+                            else if(child.GetComponent<NodeBehavior>().ID == nodesToVisit[pathIndex + 1]){
+                                finalPos = child.transform.position;
+                            }
+                        }
+                    }
+
+                    nodePosNeedsToUpdate = 0;
+                    if(nodesToVisit.Count != 1)
+                        transform.rotation = Quaternion.LookRotation(finalPos - initPos);
+                }
 
                 Vector3 intermediatePos = Vector3.Lerp(initPos, finalPos, t);
                 intermediatePos.y = initY;
                 transform.position = intermediatePos;
                 
-                timeElapsed += Time.deltaTime;
+                
             }
             // movement completed, start loading/unloading
             else {
                 isMoving = 0;
                 timeElapsed = 0;
-                cntNodeID = destinationNodeID;
+                cntNodeID = nodesToVisit[nodesToVisit.Count - 1];
 
-                // pickup
+                // Debug.Log(cntNodeID);
+
+                // drop off
                 if(pickupOrDrop == 0){
-                    inv.Deliver(0, destinationSupplyDemand.demandItemType, 1);
+                    foreach(Contract c in contractManager.contracts){
+                        // check if a contract exists here
+                        if(c.dest_node_id == cntNodeID & c.amount_delivered < c.amount_needed){
+                            ItemTypes request = c.resource_type;
+                            int numCarrying = 0;
+                            foreach(int item in inv.cntInventory){
+                                if(item == (int) request)
+                                    numCarrying++;
+                            }
+
+                            // we can deliver to this node
+                            if(numCarrying > 0){
+                                int toDeliver = Mathf.Min(c.amount_needed - c.amount_delivered, numCarrying);
+
+                                Debug.Log("Suitable contract found!");
+                                c.amount_delivered += toDeliver;    // update contract
+                                Debug.Log("Progress: " + c.amount_delivered + "/" + c.amount_needed);
+                            
+                                inv.Deliver(request, toDeliver); // update truck inventory
+                            }
+                        }
+                    }
                 }
-                // drop
+                // pickup
                 else {
-                    inv.Load(destinationSupplyDemand.supplyItemType, 1);
+                    inv.Load(supplyType, 1); 
                 }
             }
         }
-
     }
 
     void OnCollisionEnter(Collision collision){
@@ -124,26 +168,18 @@ public class MoveToNode : MonoBehaviour
                 if (hitData.collider.gameObject.GetComponent<NodeBehavior>() != null){
                     GameObject chosenNode = hitData.collider.gameObject;
                     destinationNodeID = chosenNode.GetComponent<NodeBehavior>().ID;
-                    List<int> nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
-                    // Debug.Log("Chosen destination node: " + destinationNodeID);
+                    NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
-                    // check if that node is connected
-                    if(nodeConnections.Contains(cntNodeID)){
-                        // initiate movement
-                        // Debug.Log("Moving to " + destinationNodeID);
-                        isMoving = 1;
-                        initPos = transform.position;
-                        finalPos = hitData.transform.position;
+                    nodesToVisit = ShortestPath(cntNodeID, destinationNodeID);
+                    // for(int i = 0; i < nodesToVisit.Count; i++){
+                        // Debug.Log(nodesToVisit[i]);
+                    // }
 
-                        timeElapsed = 0;
-                    }
-                    else{
-                        // Debug.Log("That movement is not allowed");
-                    }
+                    onPath = 1;
+                    nodePosNeedsToUpdate = 1;
                 }
             }
-
         }
         return hitObject;
     }

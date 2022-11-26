@@ -4,37 +4,86 @@ using UnityEngine;
 
 public class ContractManager : MonoBehaviour
 {
+
+    object lock_obj = new object();
+
     // creating a list of contracts
     public List<Contract> contracts = new List<Contract>();
+
+
+    public int max_contracts = 10;
+
+    public int num_nodes;
+    public List<int> num_contracts;
+
 
     // creating a contract
     public Contract newContract;
 
+
+
     private void Start()
     {
-        // creating a new contract
-        newContract = new Contract(2,5,0,1,50,50);
-        // adding the contract to the list
-        contracts.Add(newContract);
-        newContract = new Contract(3,4,0,2,60,60);
-        contracts.Add(newContract);
-        newContract = new Contract(4,5,0,3,70,70);
-        contracts.Add(newContract);
-        newContract = new Contract(2,3,0,2,80,80);
-        contracts.Add(newContract);
-        newContract = new Contract(4,5,0,2,90,90);
-        contracts.Add(newContract);
 
-        for (int i = 0; i < contracts.Count; i++)
+        num_nodes = GameObject.Find("Nodes").GetComponent<NodeManager>().nodeList.Length;
+        
+        // Debug.Log(num_nodes);
+        num_contracts = new List<int>(Enumerable.Repeat(0, num_nodes));
+        StartCoroutine(RandomContractGenerator());
+        // money = moneyCounter.money;
+
+        
+    }
+
+
+
+    // List<int> num_contracts = List.;
+    // using enumeratable range
+    
+
+
+    IEnumerator RandomContractGenerator()
+    {
+
+        while(true)
+
         {
             Debug.Log(contracts[i].contract_time);
             StartCoroutine(StartContract(contracts[i]));
 
 
+
+                rand_node = Random.Range(0, num_nodes);
+                // Debug.Log("Random Number: " + rand_node);
+                if (num_contracts[rand_node] < 3)
+                {
+                    lock(lock_obj)
+                    {
+                    num_contracts[rand_node] += 1;
+                    }
+                    break;
+                }
+
+            }
+            int rand_num_resources = Random.Range(1, 4);
+            int rand_resource_type = Random.Range(1, 4);
+
+
+            newContract = new Contract(rand_node,rand_num_resources,0,(ItemTypes) rand_resource_type,50,50);
+
+            contracts.Add(newContract);
+            StartCoroutine(StartContract(newContract));
+            
+            string str ="";
+            for(int j=0;j<num_contracts.Count();j++)
+            {
+                str += num_contracts[j].ToString() + " ";
+            }
+            Debug.Log(str);
+            yield return new WaitForSeconds(5);
         }
-
-    }
-
+            
+    }   
 
     
     
@@ -50,18 +99,40 @@ public class ContractManager : MonoBehaviour
             // yield return new WaitForSeconds(1);
             if (contract.amount_delivered >= contract.amount_needed)
             {
-                Debug.Log("Contract Delivered at "+gameObject.name);
-            }
-            else
-            {
-                Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
+
+                // Debug.Log("Contract Delivered at "+gameObject.name);
+                // deleting contract from contract list
+                lock(lock_obj)
+                {
+                    num_contracts[contract.dest_node_id] -= 1;
+                }
+                if(num_contracts[contract.dest_node_id]<0)
+                {
+                    num_contracts[contract.dest_node_id] = 0;
+                }
+                contracts.Remove(contract); 
             }
             contract.time_left = i;
+
+            //printing each value in num_contracts in one line
+            // Debug.Log(str);
+
+
             yield return new WaitForSeconds(1);
         }
         if (contract.amount_delivered<contract.amount_needed)
         {
-            Debug.Log("Contract Failed at "+contract.dest_node_id);
+
+            // Debug.Log("Contract Failed at "+contract.dest_node_id);
+            lock(lock_obj)
+            {
+                num_contracts[contract.dest_node_id] -= 1;
+            }
+            if(num_contracts[contract.dest_node_id]<0)
+            {
+                num_contracts[contract.dest_node_id] = 0;
+            }
+            contracts.Remove(contract);
         }
 
     }
@@ -73,12 +144,12 @@ public class Contract
     public int dest_node_id;
     public int amount_needed;
     public int amount_delivered;
-    public int resource_type;
+    public ItemTypes resource_type;
     public int contract_time;
     public int time_left;
 
 
-    public Contract(int dest_node_id, int amount_needed, int amount_delivered, int resource_type, int contract_time, int time_left)
+    public Contract(int dest_node_id, int amount_needed, int amount_delivered, ItemTypes resource_type, int contract_time, int time_left)
     {
         this.dest_node_id = dest_node_id;
         this.amount_needed = amount_needed;
@@ -86,8 +157,6 @@ public class Contract
         this.resource_type = resource_type;
         this.contract_time = contract_time;
         this.time_left = time_left;
-    }
 
-
-    
+    } 
 }
