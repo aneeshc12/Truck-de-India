@@ -8,11 +8,16 @@ public class TimeLeft : MonoBehaviour
     private NodeBehavior nodeAttributes;
 
     private Transform transformer;
-
+    private Renderer renderer;
 
     public int node = 2;
     public int posn = 0;
     private float height;
+
+    public List<int> num_contracts;
+    private Transform glass_transformer; 
+
+    private float height_g;
 
     private void Start()
     {
@@ -94,4 +99,5 @@ public class TimeLeft : MonoBehaviour
 
 
 
+    }
 }

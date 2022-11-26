@@ -2,19 +2,62 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Classes to represent graph substructures
+// represent node position
+[System.Serializable]
+public class NodePosition{
+    public float[] position;
+
+    public NodePosition(){}
+
+    public NodePosition(float x, float y){
+        position = new float[] {x,y};
+    }
+}
+
+// represent one edge
+[System.Serializable]
+public class EdgeData{
+    public float distance;
+    public int homeID;
+    public int destinationID;
+
+    public EdgeData(){}
+
+    // create an edge from two node positions and IDs
+    public EdgeData(NodePosition np1, NodePosition np2, int hID, int dID){
+        float[] pos1 = np1.position;
+        float[] pos2 = np2.position;
+
+        distance = Mathf.Sqrt(Mathf.Pow(pos1[0] - pos2[0], 2.0f) + Mathf.Pow(pos1[1] - pos2[1], 2.0f));
+        homeID = hID;
+        destinationID = dID;
+    }
+}
+
+// represents all edges from one node
+[System.Serializable]
+public class NodeOut{
+    public List<EdgeData> roads = new List<EdgeData>();
+
+    public NodeOut(){}
+
+    public void addRoad(EdgeData ed){
+        roads.Add(ed);
+    }
+}
+
+
 public class NodeManager : MonoBehaviour
 {
     public int[] nodeList = new int[] {0,1,2,3,4};
-    public List<List<int>> connections = new List<List<int>>();
+    public List<NodePosition> nodePositions = new List<NodePosition>();        // tracks x,y of each node
+
+    public List<NodeOut> connections = new List<NodeOut>();
 
     void Awake()
     {
-        // add connections
-        connections.Add(new List<int> {0,1,2,4});
-        connections.Add(new List<int> {0,1,2,3});
-        connections.Add(new List<int> {0,1,2,3});
-        connections.Add(new List<int> {1,2,3,4});
-        connections.Add(new List<int> {0,3,4});
+        loadInitialConnections();
     }
 
     // Start is called before the first frame update
@@ -28,7 +71,6 @@ public class NodeManager : MonoBehaviour
     {
         
     }
-
 
     // starting connections
     void loadInitialConnections(){
@@ -80,5 +122,3 @@ public class NodeManager : MonoBehaviour
         connections[destinationID].addRoad(ed2);
     }
 }
-
-

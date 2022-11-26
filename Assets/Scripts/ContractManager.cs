@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ContractManager : MonoBehaviour
 {
@@ -44,15 +45,16 @@ public class ContractManager : MonoBehaviour
 
     IEnumerator RandomContractGenerator()
     {
-
         while(true)
-
         {
-            Debug.Log(contracts[i].contract_time);
-            StartCoroutine(StartContract(contracts[i]));
-
-
-
+            //generating a random number less than n
+            while (contracts.Count >= max_contracts)
+            {
+                yield return null;
+            }
+            int rand_node;
+            while(true)
+            {
                 rand_node = Random.Range(0, num_nodes);
                 // Debug.Log("Random Number: " + rand_node);
                 if (num_contracts[rand_node] < 3)
@@ -67,13 +69,12 @@ public class ContractManager : MonoBehaviour
             }
             int rand_num_resources = Random.Range(1, 4);
             int rand_resource_type = Random.Range(1, 4);
-
-
-            newContract = new Contract(rand_node,rand_num_resources,0,(ItemTypes) rand_resource_type,50,50);
+         
 
             contracts.Add(newContract);
-            StartCoroutine(StartContract(newContract));
-            
+            StartCoroutine(StartContract(newContract))
+;
+
             string str ="";
             for(int j=0;j<num_contracts.Count();j++)
             {
@@ -82,13 +83,8 @@ public class ContractManager : MonoBehaviour
             Debug.Log(str);
             yield return new WaitForSeconds(5);
         }
-            
-    }   
 
-    
-    
-
-    
+    }
 
     IEnumerator StartContract(Contract contract)
     {
