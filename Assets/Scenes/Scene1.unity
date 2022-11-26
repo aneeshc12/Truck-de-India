@@ -2367,7 +2367,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.30503666, y: -0, z: -0, w: 0.9523406}
-  m_LocalPosition: {x: 0, y: 8.15, z: -9.49}
+  m_LocalPosition: {x: 0, y: 8.268, z: -9.655}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3495,6 +3495,7 @@ GameObject:
   - component: {fileID: 1362445757}
   - component: {fileID: 1362445761}
   - component: {fileID: 1362445762}
+  - component: {fileID: 1362445763}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -3614,6 +3615,20 @@ MonoBehaviour:
   a: 1.55
   b: 0.26
   c: 2
+--- !u!114 &1362445763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362445756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bab353d692c9e4f3396bf14ea5eac8ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySize: 5
+  cntInventory: 
 --- !u!4 &1383241857 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6154584254539032192, guid: 710744ad352f06f44b3734d7794724f0, type: 3}
