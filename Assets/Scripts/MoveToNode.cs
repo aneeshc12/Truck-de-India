@@ -150,6 +150,8 @@ public class MoveToNode : MonoBehaviour
                     }
 
                     nodePosNeedsToUpdate = 0;
+                    if(nodesToVisit.Count != 1)
+                        transform.rotation = Quaternion.LookRotation(finalPos - initPos);
                 }
 
                 if (timeElapsed < travelDuration){
@@ -169,6 +171,7 @@ public class MoveToNode : MonoBehaviour
                     pathIndex++;
                     nodePosNeedsToUpdate = 1;
                 }
+                
                 
             }
             // movement completed, start loading/unloading
@@ -246,9 +249,6 @@ public class MoveToNode : MonoBehaviour
                     nodePosNeedsToUpdate = 1;
                 }
             }
-
-            if(cntNodeID != destinationNodeID)
-                transform.rotation = Quaternion.LookRotation(hitData.point - transform.position);
         }
 
         return hitObject;

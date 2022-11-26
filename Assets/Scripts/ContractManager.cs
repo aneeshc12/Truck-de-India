@@ -5,6 +5,9 @@ using System.Linq;
 
 public class ContractManager : MonoBehaviour
 {
+
+    object lock_obj = new object();
+
     // creating a list of contracts
     public List<Contract> contracts = new List<Contract>();
 
@@ -14,18 +17,24 @@ public class ContractManager : MonoBehaviour
     public List<int> num_contracts;
 
 
-
     // creating a contract
     public Contract newContract;
+
+
 
     private void Start()
     {
         num_nodes = GameObject.Find("Nodes").GetComponent<NodeManager>().nodeList.Length;
+        
         // Debug.Log(num_nodes);
         num_contracts = new List<int>(Enumerable.Repeat(0, num_nodes));
         StartCoroutine(RandomContractGenerator());
+        // money = moneyCounter.money;
+
         
     }
+
+
 
     // List<int> num_contracts = List.;
     // using enumeratable range
@@ -51,7 +60,10 @@ public class ContractManager : MonoBehaviour
                 // Debug.Log("Random Number: " + rand_node);
                 if (num_contracts[rand_node] < 3)
                 {
+                    lock(lock_obj)
+                    {
                     num_contracts[rand_node] += 1;
+                    }
                     break;
                 }
 
@@ -64,6 +76,13 @@ public class ContractManager : MonoBehaviour
 
             contracts.Add(newContract);
             StartCoroutine(StartContract(newContract));
+            
+            string str ="";
+            for(int j=0;j<num_contracts.Count();j++)
+            {
+                str += num_contracts[j].ToString() + " ";
+            }
+            Debug.Log(str);
             yield return new WaitForSeconds(5);
         }
             
@@ -82,22 +101,19 @@ public class ContractManager : MonoBehaviour
             {
                 // Debug.Log("Contract Delivered at "+gameObject.name);
                 // deleting contract from contract list
-                num_contracts[contract.dest_node_id] -= 1;
+                lock(lock_obj)
+                {
+                    num_contracts[contract.dest_node_id] -= 1;
+                }
+                if(num_contracts[contract.dest_node_id]<0)
+                {
+                    num_contracts[contract.dest_node_id] = 0;
+                }
                 contracts.Remove(contract); 
-            }
-            else
-            {
-                // Debug.Log((contract.amount_needed-contract.amount_delivered).ToString()+" resources of "+ contract.resource_type.ToString() +" left to deliver at "+contract.dest_node_id.ToString()+" in the next "+i.ToString()+" seconds");
-
             }
             contract.time_left = i;
 
             //printing each value in num_contracts in one line
-            string str = "";
-            foreach (int value in num_contracts)
-            {
-                str += value.ToString() + " ";
-            }
             // Debug.Log(str);
 
             yield return new WaitForSeconds(1);
@@ -105,7 +121,14 @@ public class ContractManager : MonoBehaviour
         if (contract.amount_delivered<contract.amount_needed)
         {
             // Debug.Log("Contract Failed at "+contract.dest_node_id);
-            num_contracts[contract.dest_node_id] -= 1;
+            lock(lock_obj)
+            {
+                num_contracts[contract.dest_node_id] -= 1;
+            }
+            if(num_contracts[contract.dest_node_id]<0)
+            {
+                num_contracts[contract.dest_node_id] = 0;
+            }
             contracts.Remove(contract);
 
         }

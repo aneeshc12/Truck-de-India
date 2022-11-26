@@ -27,12 +27,13 @@ public class TimeLeft : MonoBehaviour
         // nodeAttributes = GameObject.Find("Node " + node).GetComponent<NodeBehavior>();
         num_contracts = contractManager.num_contracts;
         glass_transformer = GameObject.Find(gameObject.name + "_" + node.ToString() +  "g").GetComponent<Transform>();
-        height_g = glass_transformer.localScale.y;
+        // height_g = glass_transformer.localScale.y;
 
         
 
         // height is the height of cylinder
         height = transformer.localScale.y;
+        height_g = 0.99f * height;
 
         renderer = GetComponent<Renderer>();
 
@@ -79,15 +80,6 @@ public class TimeLeft : MonoBehaviour
         int contract_posn = positions[posn];    
 
         contract = contractManager.contracts[contract_posn];
-        if ((int) contract.resource_type == 1){
-            renderer.material.color = new(255, 0, 0);
-        }
-        else if ((int) contract.resource_type == 2){
-            renderer.material.color = new(0, 255, 0);
-        }
-        else if ((int) contract.resource_type == 3){
-            renderer.material.color = new(0, 0, 255);
-        }
 
         if (contract.dest_node_id == node)
         {
@@ -97,7 +89,7 @@ public class TimeLeft : MonoBehaviour
             // Debug.Log(transformer.localScale);
             float timeLeft = contract.time_left;
             transformer.localScale = new Vector3(transformer.localScale.x, (height*(timeLeft/contract.contract_time)), transformer.localScale.z);
-
+            glass_transformer.localScale = new Vector3(glass_transformer.localScale.x, (height_g), glass_transformer.localScale.z);
         }
         }
        
