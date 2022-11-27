@@ -14,6 +14,13 @@ public class CameraManager : MonoBehaviour
     private int MapCamflag=0;
     private Camera cam;
     public static Vector2 mouseScrollDelta;
+    public AudioSource audioSource1;
+    public AudioSource audioSource2;
+    public AudioSource audioSource3;
+
+    public AudioClip audioClip1;
+    public AudioClip audioClip2;
+    public AudioClip audioClip3;
 
 
     [SerializeField]
@@ -28,23 +35,79 @@ public class CameraManager : MonoBehaviour
     {
         if (MapCamflag==0 || cameraPosition != 1){
             transform.position = Vector3.Lerp(transform.position, cameraWaypoints[cameraPosition].transform.position, Time.deltaTime * lerpSpeed);
+            transform.rotation = Quaternion.Lerp(transform.rotation, cameraWaypoints[cameraPosition].transform.rotation, Time.deltaTime * rotateSpeed);  
+        } 
+        if (cameraPosition ==0)
+        {
+            MapCamflag=0;
+            if (Input.GetKey("1"))
+            {
+                cameraPosition=0;
+            }
+            if (Input.GetKey("2"))
+            {
+                cameraPosition=1;
+            }
+            if (Input.GetKey("3"))
+            {
+                cameraPosition=2;
+            }
+            if (Input.GetKey("4"))
+            {
+                cameraPosition=3;
+            }
         }
         if (cameraPosition == 1)
         {
             MoveOverMap();
-            if (Input.GetKey(KeyCode.Escape))
+        }
+        if (cameraPosition == 2)
+        {
+            MapCamflag=0;
+            if (Input.GetKey("1"))
             {
-                cameraPosition = 2;
-                MapCamflag = 0;
+                cameraPosition=0;
+            }
+            if (Input.GetKey("2"))
+            {
+                cameraPosition=1;
+            }
+            if (Input.GetKey("3"))
+            {
+                cameraPosition=2;
+            }
+            if (Input.GetKey("4"))
+            {
+                cameraPosition=3;
             }
         }
-        transform.rotation = Quaternion.Lerp(transform.rotation, cameraWaypoints[cameraPosition].transform.rotation, Time.deltaTime * rotateSpeed);        
+        if (cameraPosition == 3)
+        {
+            MapCamflag=0;
+            if (Input.GetKey("1"))
+            {
+                cameraPosition=0;
+            }
+            if (Input.GetKey("2"))
+            {
+                cameraPosition=1;
+            }
+            if (Input.GetKey("3"))
+            {
+                cameraPosition=2;
+            }
+            if (Input.GetKey("4"))
+            {
+                cameraPosition=3;
+            }
+        }     
     }
 
     void MoveOverMap()
     {
         CameraPosition = this.transform.position;
-        Debug.Log(CameraPosition);
+        print(CameraPosition.z);
+        print(CameraPosition.x);
         // bounds
         if (CameraPosition.x <= 23 && CameraPosition.x >= 3.5 && CameraPosition.z <= 28 && CameraPosition.z >= 13)
         {
@@ -68,6 +131,23 @@ public class CameraManager : MonoBehaviour
                 CameraPosition.x += panSpeed * Time.deltaTime;
                 MapCamflag=1;
             }
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                cameraPosition = 2;
+                MapCamflag = 0;
+            }
+            if (Input.GetKey("1"))
+            {
+                audioSource1.PlayOneShot(audioClip1);
+            }
+            if (Input.GetKey("2"))
+            {
+                audioSource2.PlayOneShot(audioClip2);
+            }
+            if (Input.GetKey("3"))
+            {
+                audioSource3.PlayOneShot(audioClip3);
+            }
         }
         else
         {
@@ -88,7 +168,6 @@ public class CameraManager : MonoBehaviour
                 CameraPosition.z = 13;
             }
         }
-        this.transform.position = CameraPosition;
         
         mouseScrollDelta = Input.mouseScrollDelta;
         if (mouseScrollDelta.y != 0)
@@ -96,6 +175,6 @@ public class CameraManager : MonoBehaviour
             cam = Camera.main;
             cam.fieldOfView  = Mathf.Clamp(cam.fieldOfView  - mouseScrollDelta.y * zoomStep, minCamsize, maxCamsize);
         }
-
+    this.transform.position=CameraPosition;
     }
 }

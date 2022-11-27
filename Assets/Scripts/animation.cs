@@ -13,9 +13,13 @@ public class animation : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetKey("1"))
+        if (Input.GetKey(KeyCode.O))
         {
             anim.SetTrigger("Active");
+        }
+        if (Input.GetKey(KeyCode.P))
+        {
+            anim.SetTrigger("Close");
         }
     }
 }

@@ -98,8 +98,16 @@ public class MoveToNode : MonoBehaviour
                     }
 
                     nodePosNeedsToUpdate = 0;
-                    if(nodesToVisit.Count != 1)
+                    if(nodesToVisit.Count != 1){
                         transform.rotation = Quaternion.LookRotation(finalPos - initPos);
+                        // transform.eulerAngles.z = 180;
+                        // transform.eulerAngles.y = transform.eulerAngles.y + 180;
+
+                        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + 180, 180);
+                        
+                        // Vector3 rotationVector = new Vector3(0, 30, 0);
+                        // Quaternion rotation = Quaternion.Euler(rotationVector);
+                    }
                 }
 
                 Vector3 intermediatePos = Vector3.Lerp(initPos, finalPos, t);
@@ -161,6 +169,7 @@ public class MoveToNode : MonoBehaviour
         Physics.Raycast(ray, out hitData);
 
         GameObject hitObject = hitData.transform.gameObject;
+        Debug.Log(hitObject.name);
         if(hitObject.tag == "Node"){        
             // init movement if not already moving
             if(isMoving == 0){
@@ -172,9 +181,9 @@ public class MoveToNode : MonoBehaviour
                     NodeOut nodeConnections = chosenNode.GetComponent<NodeBehavior>().connections;
 
                     nodesToVisit = ShortestPath(cntNodeID, destinationNodeID);
-                    // for(int i = 0; i < nodesToVisit.Count; i++){
-                        // Debug.Log(nodesToVisit[i]);
-                    // }
+                    for(int i = 0; i < nodesToVisit.Count; i++){
+                        Debug.Log(nodesToVisit[i]);
+                    }
 
                     onPath = 1;
                     nodePosNeedsToUpdate = 1;
@@ -184,6 +193,120 @@ public class MoveToNode : MonoBehaviour
         return hitObject;
     }
 
+<<<<<<< Updated upstream
+=======
+    // ----------------------------------------------------------------------------
+
+    // utility function to find shortest path
+    // essentially Dijkstras
+    public List<int> ShortestPath(int homeID, int destinationID){
+        if(homeID == destinationID){
+            List<int> temp = new List<int>();
+            temp.Add(homeID);
+            return temp;
+        }
+
+        NodeManager nodeManager = GameObject.Find("Nodes").GetComponent("NodeManager") as NodeManager;
+
+        // util functions
+        float GetDistance(int homeID, int destinationID){
+            foreach(EdgeData ed in nodeManager.connections[homeID].roads){
+                if(ed.homeID == homeID & ed.destinationID == destinationID){
+                    return ed.distance;
+                }
+            }
+
+            // not found
+            return float.MaxValue;
+        }
+
+        void Relax(int homeID, int destinationID, float weight, float[] distances, int[] previous)
+        {
+            if (distances[homeID] != float.MaxValue & distances[destinationID] > distances[homeID] + weight)
+            {
+                distances[destinationID] = distances[homeID] + weight;
+                previous[destinationID] = homeID;
+            }
+        }
+
+        // main code
+        // int numNodes = nodeManager.nodeList.Length;
+        int numNodes = 15; // HARDCODE THIS
+        float[] distances = new float[numNodes];
+        int[] previous = new int[numNodes];
+
+        NodeQueue nodeQueue = new NodeQueue();
+
+        for(int i = 0; i < numNodes; i++){
+            previous[i] = -1;
+
+            if(i == homeID){
+                distances[i] = 0.0f;
+            }
+            else{
+                distances[i] = float.MaxValue;
+            }
+            nodeQueue.Enqueue(i, distances[i]);
+        }
+
+        while(nodeQueue.q.Count > 0){
+
+            // extract min
+            int closestNode = nodeQueue.Dequeue();
+
+            int connectedNum = nodeManager.connections[closestNode].roads.Count;
+            for (int v = 0; v < connectedNum; v++)
+            {
+                int queryNode = nodeManager.connections[closestNode].roads[v].destinationID;
+                if(queryNode == closestNode){
+                    continue;
+                }
+                
+                float dist = GetDistance(closestNode, queryNode);
+                if (dist > 0)
+                {
+                    Relax(closestNode, queryNode, dist, distances, previous);
+                    //updating priority value since distance is changed
+                    nodeQueue.UpdatePriority(queryNode, distances[queryNode]);
+                }
+            }
+
+            // Debug.Log("Logs: ");
+            // for (int k = 0; k < numNodes; k++){
+            //     Debug.Log(k + " : " + distances[k] + " " +  previous[k]);
+            // }
+            // Debug.Log("");
+        }
+
+        // recursively print path
+        List<int> path = new List<int>();
+        void GeneratePath(int u, int v, float[] distance, int[] parent)
+        {
+            if (v < 0 || u < 0)
+            {
+                return;
+            }
+            if (v != u)
+            {
+                GeneratePath(u, parent[v], distance, parent);
+                // Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+                
+                path.Add(v);
+            }
+            else{
+                // Debug.Log("Vertex " + v +  ", weight:" + distance[v]);
+                path.Add(v);
+            }
+        }
+
+        // Debug.Log("Shortest path: ");
+        GeneratePath(homeID, destinationID, distances, previous);
+        return path;
+    }
+
+    // ----------------------------------------------------------------------------
+
+>>>>>>> Stashed changes
     public void TransferResources(int transferFromID, int transferToID)
     {
         List<GameObject> Children = new List<GameObject> {};

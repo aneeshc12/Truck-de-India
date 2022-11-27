@@ -16,6 +16,9 @@ public class ContractManager : MonoBehaviour
     public int num_nodes;
     public List<int> num_contracts;
 
+    public MoneyTimer moneyTimer;
+    public float money;
+
 
     // creating a contract
     public Contract newContract;
@@ -23,13 +26,15 @@ public class ContractManager : MonoBehaviour
 
 
     private void Start()
-    {
+    { 
 
-        num_nodes = GameObject.Find("Nodes").GetComponent<NodeManager>().nodeList.Length;
+        // num_nodes = GameObject.Find("Nodes").GetComponent<NodeManager>().nodeList.Count();
         
-        // Debug.Log(num_nodes);
+        Debug.Log(num_nodes);
         num_contracts = new List<int>(Enumerable.Repeat(0, num_nodes));
         StartCoroutine(RandomContractGenerator());
+        moneyTimer = GameObject.Find("Money Counter").GetComponent<MoneyTimer>();
+        money = moneyTimer.money;
         // money = moneyCounter.money;
 
         
@@ -59,7 +64,7 @@ public class ContractManager : MonoBehaviour
                 {
                     lock(lock_obj)
                     {
-                    num_contracts[rand_node] += 1;
+                        num_contracts[rand_node] += 1;
                     }
                     break;
                 }
@@ -67,7 +72,16 @@ public class ContractManager : MonoBehaviour
             }
             int rand_num_resources = Random.Range(1, 4);
             int rand_resource_type = Random.Range(1, 4);
+<<<<<<< Updated upstream
 
+=======
+
+            newContract = new Contract(rand_node,rand_num_resources,0,(ItemTypes) rand_resource_type,50,50);
+         
+
+            contracts.Add(newContract);
+            StartCoroutine(StartContract(newContract));
+>>>>>>> Stashed changes
 
             newContract = new Contract(rand_node,rand_num_resources,0,(ItemTypes) rand_resource_type,50,50);
 
@@ -105,6 +119,7 @@ public class ContractManager : MonoBehaviour
                 lock(lock_obj)
                 {
                     num_contracts[contract.dest_node_id] -= 1;
+                    moneyTimer.money += (float)contract.amount_needed;
                 }
                 if(num_contracts[contract.dest_node_id]<0)
                 {
@@ -127,6 +142,7 @@ public class ContractManager : MonoBehaviour
             lock(lock_obj)
             {
                 num_contracts[contract.dest_node_id] -= 1;
+                moneyTimer.money -= 3f;
             }
             if(num_contracts[contract.dest_node_id]<0)
             {

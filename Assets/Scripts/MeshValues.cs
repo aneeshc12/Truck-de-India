@@ -34,7 +34,7 @@ public class MeshValues : MonoBehaviour
             }
         }
 
-        if (positions.Count > 0 && posn < positions.Count)
+        if (positions.Count > 0 & posn < positions.Count)
         {
             int contract_posn = positions[posn];
             contract = contractManager.contracts[contract_posn];
