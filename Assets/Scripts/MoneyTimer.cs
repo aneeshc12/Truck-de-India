@@ -21,7 +21,7 @@ public class MoneyTimer : MonoBehaviour
         // }
         while ( money >=0)
         {
-            Debug.Log("Money: " + money);
+            // Debug.Log("Money: " + money);
             money -= moneyDrainRate;
             yield return null;
         }
